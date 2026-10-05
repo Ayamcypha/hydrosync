@@ -2,9 +2,9 @@
 
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Card } from "@/components/ui";
+import { Card, Button } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import { ChevronRight, Check, Wrench, Home, Building2, Zap, Droplets, Wind, Shield, Truck, Star, Clock, Users, Phone } from "lucide-react";
+import { ChevronRight, Check, Wrench, Home, Building2, Zap, Droplets, Wind, Shield, Truck, Star, Clock, Users, Phone, Calendar } from "lucide-react";
 
 interface ServiceNavProps {
   currentCategory: string;
@@ -228,19 +228,16 @@ export function ServiceHero({ title, description, category, image, backgroundIma
             transition={{ duration: 0.6, delay: 0.4 }}
             className="flex flex-col sm:flex-row gap-4"
           >
-            <Link
-              href={ctaLink}
-              className="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-primary-600 text-white font-semibold text-lg hover:bg-primary-700 transition-colors shadow-lg"
-            >
-              {ctaText}
-            </Link>
-            <a
-              href="tel:6142322222"
-              className="inline-flex items-center justify-center px-8 py-4 rounded-xl border-2 border-primary-600 text-primary-600 font-semibold text-lg hover:bg-primary-50 transition-colors"
-            >
-              <Phone className="w-5 h-5 mr-2" />
-              Call: (614) 232-2222
-            </a>
+            <Button size="xl" animateIcon iconLeft={<Calendar className="w-5 h-5" />} iconRightHover={<ChevronRight className="w-5 h-5" />} className="w-full sm:w-auto">
+              <Link href={ctaLink} className="w-full h-full flex items-center justify-center">
+                {ctaText}
+              </Link>
+            </Button>
+            <Button size="xl" variant="outline" animateIcon iconLeft={<Phone className="w-5 h-5" />} iconRightHover={<ChevronRight className="w-5 h-5" />} className="w-full sm:w-auto">
+              <Link href="tel:6142322222" className="w-full h-full flex items-center justify-center">
+                Call: (614) 232-2222
+              </Link>
+            </Button>
           </motion.div>
         </div>
       </div>
@@ -383,19 +380,17 @@ export function ServiceCTA({ title, description, primaryCta, secondaryCta, class
             transition={{ duration: 0.6, delay: 0.2 }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
-            <a
-              href={primaryCta.link}
-              className="inline-flex items-center justify-center px-8 py-4 rounded-xl bg-white text-primary-600 font-semibold text-lg hover:bg-primary-50 transition-colors shadow-lg"
-            >
-              {primaryCta.text}
-            </a>
+            <Button size="xl" variant="secondary" animateIcon iconLeft={<Calendar className="w-5 h-5" />} iconRightHover={<ChevronRight className="w-5 h-5" />} className="w-full sm:w-auto">
+              <Link href={primaryCta.link} className="w-full h-full flex items-center justify-center">
+                {primaryCta.text}
+              </Link>
+            </Button>
             {secondaryCta && (
-              <a
-                href={secondaryCta.link}
-                className="inline-flex items-center justify-center px-8 py-4 rounded-xl border-2 border-white text-white font-semibold text-lg hover:bg-white/10 transition-colors"
-              >
-                {secondaryCta.text}
-              </a>
+              <Button size="xl" variant="ghost" animateIcon iconLeft={<Phone className="w-5 h-5" />} iconRightHover={<ChevronRight className="w-5 h-5" />} className="w-full sm:w-auto">
+                <Link href={secondaryCta.link} className="w-full h-full flex items-center justify-center">
+                  {secondaryCta.text}
+                </Link>
+              </Button>
             )}
           </motion.div>
         </div>

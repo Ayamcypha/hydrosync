@@ -7,6 +7,8 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   loading?: boolean;
   iconLeft?: React.ReactNode;
   iconRight?: React.ReactNode;
+  iconRightHover?: React.ReactNode;
+  animateIcon?: boolean;
   fullWidth?: boolean;
 }
 
@@ -19,6 +21,8 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       loading = false,
       iconLeft,
       iconRight,
+      iconRightHover,
+      animateIcon = false,
       fullWidth = false,
       disabled,
       children,
@@ -44,10 +48,26 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       xl: "px-10 py-5 text-xl gap-3",
     };
 
+    const animateStyles = animateIcon
+      ? "group relative overflow-hidden"
+      : "";
+
+    const iconLeftStyles = animateIcon && iconLeft
+      ? "transition-transform duration-200 group-hover:-translate-x-2 group-hover:opacity-0"
+      : "";
+
+    const iconRightStyles = animateIcon && (iconRight || iconRightHover)
+      ? "transition-transform duration-200"
+      : "";
+
+    const iconRightHoverStyles = animateIcon && iconRightHover
+      ? "absolute right-[1rem] top-1/2 -translate-y-1/2 translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100"
+      : "absolute right-[1rem] top-1/2 -translate-y-1/2 opacity-0 pointer-events-none";
+
     return (
       <button
         ref={ref}
-        className={cn(baseStyles, variants[variant], sizes[size], fullWidth && "w-full", className)}
+        className={cn(baseStyles, variants[variant], sizes[size], fullWidth && "w-full", animateStyles, className)}
         disabled={disabled || loading}
         {...props}
       >
@@ -67,10 +87,34 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
             />
           </svg>
         ) : (
-          iconLeft
+          <>
+            {iconLeft && (
+              <span className={cn("flex-shrink-0", iconLeftStyles)} aria-hidden="true">
+                {iconLeft}
+              </span>
+            )}
+            {children}
+            {animateIcon && (iconRight || iconRightHover) && (
+              <span className="relative flex-shrink-0" aria-hidden="true">
+                {iconRight && (
+                  <span className={cn("transition-transform duration-200", iconRightStyles)}>
+                    {iconRight}
+                  </span>
+                )}
+                {iconRightHover && (
+                  <span className={iconRightHoverStyles}>
+                    {iconRightHover}
+                  </span>
+                )}
+              </span>
+            )}
+            {!animateIcon && !loading && iconRight && (
+              <span className="flex-shrink-0" aria-hidden="true">
+                {iconRight}
+              </span>
+            )}
+          </>
         )}
-        {children}
-        {!loading && iconRight}
       </button>
     );
   }

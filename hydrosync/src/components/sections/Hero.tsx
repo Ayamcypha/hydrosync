@@ -5,7 +5,7 @@ import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui";
 import { Container, Flex } from "@/components/ui/Layout";
-import { Calendar, Phone, CheckCircle } from "lucide-react";
+import { Calendar, Phone, CheckCircle, ChevronRight } from "lucide-react";
 
 interface HeroProps {
   headline?: string;
@@ -96,15 +96,13 @@ export function Hero({
             transition={{ duration: 0.6, delay: 0.3, ease: "easeOut" }}
             className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16"
           >
-            <Button size="xl" className="w-full sm:w-auto">
+            <Button size="xl" animateIcon iconLeft={<Calendar className="w-5 h-5" />} iconRightHover={<ChevronRight className="w-5 h-5" />} className="w-full sm:w-auto">
               <Link href={primaryCta.link}>
-                <Calendar className="w-5 h-5 mr-2" aria-hidden="true" />
                 {primaryCta.text}
               </Link>
             </Button>
-            <Button size="xl" variant="outline" className="w-full sm:w-auto">
+            <Button size="xl" variant="outline" animateIcon iconLeft={<Phone className="w-5 h-5" />} iconRightHover={<ChevronRight className="w-5 h-5" />} className="w-full sm:w-auto">
               <Link href={secondaryCta.link}>
-                <Phone className="w-5 h-5 mr-2" aria-hidden="true" />
                 {secondaryCta.text}
               </Link>
             </Button>

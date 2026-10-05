@@ -5,23 +5,18 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui";
-import { Separator } from "@/components/ui/Layout";
+import { useMobileNav } from "@/context/MobileNavContext";
 import {
   Menu,
-  X,
-  Phone,
-  Calendar,
-  MapPin,
-  Truck,
-  Shield,
-  Star,
-  Clock,
   Wrench,
   Home,
   Building2,
   Zap,
   Droplets,
-  Wind,
+  Star,
+  Calendar,
+  Phone,
+  ChevronRight,
 } from "lucide-react";
 
 interface ServiceItem {
@@ -132,10 +127,10 @@ const serviceCategories: ServiceCategory[] = [
 ];
 
 const trustSignals = [
-  { icon: Truck, title: "Rapid Response", desc: "80+ service vehicles" },
-  { icon: Shield, title: "Licensed & Insured", desc: "Certified professionals" },
+  { icon: Zap, title: "Rapid Response", desc: "80+ service vehicles" },
+  { icon: ChevronRight, title: "Licensed & Insured", desc: "Certified professionals" },
   { icon: Star, title: "4.8★ Rating", desc: "4,200+ reviews" },
-  { icon: Clock, title: "24/7 Emergency", desc: "Live answer anytime" },
+  { icon: ChevronRight, title: "24/7 Emergency", desc: "Live answer anytime" },
 ];
 
 interface MegaMenuProps {
@@ -182,48 +177,48 @@ export function MegaMenu({ isOpen, onClose, activeCategory, setActiveCategory }:
       animate={{ opacity: 1, height: "auto" }}
       exit={{ opacity: 0, height: 0 }}
       transition={{ duration: 0.2, ease: "easeInOut" }}
-      className="fixed top-full left-0 right-0 z-50 bg-white border-t border-neutral-200 shadow-xl overflow-hidden"
+      className="fixed top-full left-0 right-0 z-50 bg-white border-t border-neutral-200 shadow-xl overflow-hidden max-h-[calc(100vh-4rem)] overflow-y-auto"
       role="dialog"
       aria-label="Service menu"
     >
       <div className="container mx-auto px-4 py-6 md:py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
           <motion.nav
             initial={{ opacity: 0, x: -20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: 0.1 }}
-            className="lg:col-span-1 border-r lg:border-r-0 lg:border-b-0 pb-6 lg:pb-0 border-neutral-200"
+            className="border-b md:border-b-0 md:border-r pb-6 md:pb-0 border-neutral-200 lg:col-span-1 md:col-span-2"
             aria-label="Service categories"
           >
-            <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-4">Services</h3>
-            <ul className="space-y-1" role="listbox" aria-label="Service categories">
+            <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider mb-4 hidden md:block">Services</h3>
+            <div className="flex flex-wrap gap-2 md:flex-col md:gap-1" role="listbox" aria-label="Service categories">
               {serviceCategories.map((cat, index) => (
-                <li key={cat.title}>
-                  <button
-                    role="option"
-                    aria-selected={index === activeCategory}
-                    onClick={() => setActiveCategory(index)}
-                    className={cn(
-                      "w-full text-left px-3 py-3 rounded-xl transition-all duration-200 flex items-center gap-3",
-                      "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
-                      index === activeCategory
-                        ? "bg-primary-50 text-primary-700 shadow-sm"
-                        : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
-                    )}
-                  >
-                    <cat.icon className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
-                    <span className="font-medium">{cat.title}</span>
-                  </button>
-                </li>
+                <button
+                  key={cat.title}
+                  role="option"
+                  aria-selected={index === activeCategory}
+                  onClick={() => setActiveCategory(index)}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2.5 rounded-xl transition-all duration-200 text-sm font-medium",
+                    "focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2",
+                    "md:w-full md:text-left md:px-3 md:py-3",
+                    index === activeCategory
+                      ? "bg-primary-50 text-primary-700 shadow-sm"
+                      : "text-neutral-600 hover:bg-neutral-100 hover:text-neutral-900"
+                  )}
+                >
+                  <cat.icon className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
+                  <span className="hidden sm:inline">{cat.title}</span>
+                </button>
               ))}
-            </ul>
+            </div>
           </motion.nav>
 
           <motion.div
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: 0.15 }}
-            className="lg:col-span-2 space-y-6"
+            className="lg:col-span-2 md:col-span-2 space-y-6"
           >
             <div>
               <h4 className="text-lg font-bold text-neutral-900 mb-2">{activeCat.title}</h4>
@@ -274,7 +269,7 @@ export function MegaMenu({ isOpen, onClose, activeCategory, setActiveCategory }:
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.3, delay: 0.2 }}
-            className="lg:col-span-1 border-l lg:border-l-0 lg:border-t-0 pt-6 lg:pt-0 border-neutral-200 space-y-4"
+            className="border-t md:border-t-0 md:border-l pt-6 md:pt-0 border-neutral-200 space-y-4 lg:col-span-1 md:col-span-2"
             aria-label="Trust signals"
           >
             <h3 className="text-sm font-semibold text-neutral-500 uppercase tracking-wider">Why Choose Us</h3>
@@ -292,8 +287,7 @@ export function MegaMenu({ isOpen, onClose, activeCategory, setActiveCategory }:
               ))}
             </ul>
             <div className="pt-4 border-t border-neutral-200">
-              <Button className="w-full" size="lg" onClick={onClose}>
-                <Calendar className="w-5 h-5 mr-2" aria-hidden="true" />
+              <Button className="w-full" size="lg" animateIcon iconLeft={<Calendar className="w-5 h-5" />} iconRightHover={<ChevronRight className="w-5 h-5" />} onClick={onClose}>
                 Schedule Service
               </Button>
               <Button variant="outline" className="w-full" size="lg" onClick={onClose}>
@@ -313,8 +307,8 @@ interface HeaderProps {
 }
 
 export function Header({ transparent = false }: HeaderProps) {
+  const { open: openMobileMenu } = useMobileNav();
   const [megaMenuOpen, setMegaMenuOpen] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [activeCategory, setActiveCategory] = useState(0);
 
@@ -344,7 +338,7 @@ export function Header({ transparent = false }: HeaderProps) {
             <div className="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center">
               <Zap className="w-6 h-6 text-white" aria-hidden="true" />
             </div>
-            <span className="font-bold text-xl text-neutral-900 hidden sm:block">HydroSync</span>
+            <span className="font-bold text-xl text-neutral-900">HydroSync</span>
           </Link>
 
           <div className="hidden md:flex items-center gap-8">
@@ -380,15 +374,13 @@ export function Header({ transparent = false }: HeaderProps) {
                 (614) 232-2222
               </a>
             </div>
-            <Button size="md" className="hidden sm:inline-flex" onClick={() => setMegaMenuOpen(true)}>
-              <Calendar className="w-4 h-4 mr-2" aria-hidden="true" />
+            <Button size="md" className="hidden sm:inline-flex" animateIcon iconLeft={<Calendar className="w-4 h-4" />} iconRightHover={<ChevronRight className="w-4 h-4" />} onClick={() => setMegaMenuOpen(true)}>
               Schedule Service
             </Button>
             <button
               className="md:hidden p-2 rounded-lg text-neutral-600 hover:bg-neutral-100"
-              onClick={() => setMobileMenuOpen(true)}
+              onClick={openMobileMenu}
               aria-label="Open menu"
-              aria-expanded={mobileMenuOpen}
             >
               <Menu className="w-6 h-6" aria-hidden="true" />
             </button>
@@ -398,100 +390,6 @@ export function Header({ transparent = false }: HeaderProps) {
 
       <AnimatePresence>
         {megaMenuOpen && <MegaMenu isOpen={megaMenuOpen} onClose={() => setMegaMenuOpen(false)} activeCategory={activeCategory} setActiveCategory={setActiveCategory} />}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 z-40 bg-black/50 md:hidden"
-            onClick={() => setMobileMenuOpen(false)}
-            aria-hidden="true"
-          />
-        )}
-      </AnimatePresence>
-
-      <AnimatePresence>
-        {mobileMenuOpen && (
-          <motion.aside
-            initial={{ x: "100%" }}
-            animate={{ x: 0 }}
-            exit={{ x: "100%" }}
-            transition={{ type: "spring", damping: 25, stiffness: 200 }}
-            className="fixed top-0 right-0 bottom-0 w-full max-w-sm md:hidden bg-white z-50 shadow-xl overflow-y-auto"
-            role="dialog"
-            aria-label="Mobile menu"
-          >
-            <div className="p-4 border-b border-neutral-200 flex items-center justify-between">
-              <Link href="/" className="flex items-center gap-2" onClick={() => setMobileMenuOpen(false)}>
-                <div className="w-10 h-10 rounded-xl bg-primary-600 flex items-center justify-center">
-                  <Zap className="w-6 h-6 text-white" aria-hidden="true" />
-                </div>
-                <span className="font-bold text-xl text-neutral-900">HydroSync</span>
-              </Link>
-              <button
-                onClick={() => setMobileMenuOpen(false)}
-                className="p-2 rounded-lg text-neutral-600 hover:bg-neutral-100"
-                aria-label="Close menu"
-              >
-                <X className="w-6 h-6" aria-hidden="true" />
-              </button>
-            </div>
-            <nav className="p-4 space-y-2" aria-label="Mobile navigation">
-              <Button className="w-full justify-start" variant="outline" size="lg" onClick={() => setMobileMenuOpen(false)}>
-                <Calendar className="w-5 h-5 mr-2" aria-hidden="true" />
-                Schedule Service
-              </Button>
-              <a href="tel:6142322222" className="flex items-center gap-3 px-4 py-3 text-neutral-900 font-medium" onClick={() => setMobileMenuOpen(false)}>
-                <Phone className="w-6 h-6 text-primary-600" aria-hidden="true" />
-                (614) 232-2222
-              </a>
-              <Separator className="my-4" />
-              {serviceCategories.map((cat) => (
-                <details key={cat.title} className="group">
-                  <summary className="flex items-center gap-3 px-3 py-3 font-medium text-neutral-900 cursor-pointer list-none">
-                    <cat.icon className="w-5 h-5 text-primary-600" aria-hidden="true" />
-                    {cat.title}
-                    <svg className="ml-auto w-5 h-5 text-neutral-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                    </svg>
-                  </summary>
-                  <ul className="pl-8 mt-2 space-y-2 border-l border-neutral-200">
-                    {cat.services.map((svc) => (
-                      <li key={svc.title}>
-                        <Link href={svc.href} className="block px-3 py-2 text-sm text-neutral-600 hover:text-primary-600 rounded-lg hover:bg-neutral-50 transition-colors" onClick={() => setMobileMenuOpen(false)}>
-                          {svc.title}
-                        </Link>
-                      </li>
-                    ))}
-                  </ul>
-                </details>
-              ))}
-              <details className="group">
-                <summary className="flex items-center gap-3 px-3 py-3 font-medium text-neutral-900 cursor-pointer list-none">
-                  <Building2 className="w-5 h-5 text-primary-600" aria-hidden="true" />
-                  Commercial
-                  <svg className="ml-auto w-5 h-5 text-neutral-400 group-open:rotate-180 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </summary>
-                <ul className="pl-8 mt-2 space-y-2 border-l border-neutral-200">
-                  <li><Link href="/services/commercial-hvac" className="block px-3 py-2 text-sm text-neutral-600 hover:text-primary-600 rounded-lg hover:bg-neutral-50" onClick={() => setMobileMenuOpen(false)}>Commercial HVAC</Link></li>
-                  <li><Link href="/services/commercial-plumbing" className="block px-3 py-2 text-sm text-neutral-600 hover:text-primary-600 rounded-lg hover:bg-neutral-50" onClick={() => setMobileMenuOpen(false)}>Commercial Plumbing</Link></li>
-                </ul>
-              </details>
-              <Separator className="my-4" />
-              <Link href="/about" className="block px-3 py-2 text-neutral-600 hover:text-primary-600 rounded-lg hover:bg-neutral-50 transition-colors" onClick={() => setMobileMenuOpen(false)}>About Us</Link>
-              <Link href="/contact" className="block px-3 py-2 text-neutral-600 hover:text-primary-600 rounded-lg hover:bg-neutral-50 transition-colors" onClick={() => setMobileMenuOpen(false)}>Contact</Link>
-              <Link href="/reviews" className="block px-3 py-2 text-neutral-600 hover:text-primary-600 rounded-lg hover:bg-neutral-50 transition-colors" onClick={() => setMobileMenuOpen(false)}>Reviews</Link>
-              <Link href="/financing" className="block px-3 py-2 text-neutral-600 hover:text-primary-600 rounded-lg hover:bg-neutral-50 transition-colors" onClick={() => setMobileMenuOpen(false)}>Financing</Link>
-              <Link href="/coupons" className="block px-3 py-2 text-neutral-600 hover:text-primary-600 rounded-lg hover:bg-neutral-50 transition-colors" onClick={() => setMobileMenuOpen(false)}>Coupons</Link>
-              <Link href="/careers" className="block px-3 py-2 text-neutral-600 hover:text-primary-600 rounded-lg hover:bg-neutral-50 transition-colors" onClick={() => setMobileMenuOpen(false)}>Careers</Link>
-            </nav>
-          </motion.aside>
-        )}
       </AnimatePresence>
     </motion.header>
   );
