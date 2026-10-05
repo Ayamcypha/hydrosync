@@ -59,7 +59,7 @@ export default function ServicesPage() {
         subheadline="From emergency repairs to large-scale installations, our licensed professionals deliver efficient, mess-free solutions tailored to your needs. We handle it all under one roof."
         primaryCta={{ text: "Schedule Service", link: "/schedule" }}
         secondaryCta={{ text: "Call (614) 232-2222", link: "tel:6142322222" }}
-        backgroundImage="/pics/pexels-2157750954-34938439.jpg"
+        backgroundImage="/pics/services.jpg"
         trustBadges={[
           { icon: <Shield className="w-6 h-6" />, label: "Licensed & Insured", value: "Since 1986" },
           { icon: <Clock className="w-6 h-6" />, label: "24/7 Emergency", value: "Live Answer" },

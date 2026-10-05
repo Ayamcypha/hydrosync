@@ -8,6 +8,7 @@ export default function PlumbingPage() {
         title="Plumbing Services"
         description="Complete residential plumbing solutions from HydroSync. Emergency repairs, installations, water treatment, gas lines, and more - all handled by licensed, background-checked plumbers who respect your home."
         category={{ title: "Services", slug: "services" }}
+        backgroundImage="/pics/plumbing.jpg"
         features={[
           "Licensed master plumbers on staff",
           "24/7 emergency plumbing response",

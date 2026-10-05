@@ -166,8 +166,20 @@ export function ReviewsCarousel({
 }: ReviewsCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
-  const reviewsPerView = typeof window !== "undefined" ? (window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1) : 3;
+  const [reviewsPerView, setReviewsPerView] = useState(3);
+  const [carouselRef, setCarouselRef] = useState<HTMLDivElement | null>(null);
+
   const maxIndex = Math.max(0, reviews.length - reviewsPerView);
+
+  useEffect(() => {
+    const handleResize = () => {
+      const newPerView = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1;
+      setReviewsPerView(newPerView);
+    };
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, [reviews.length]);
 
   const goToNext = useCallback(() => {
     setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
@@ -182,27 +194,28 @@ export function ReviewsCarousel({
   }, [maxIndex]);
 
   useEffect(() => {
-    const handleResize = () => {
-      const newPerView = window.innerWidth >= 1024 ? 3 : window.innerWidth >= 768 ? 2 : 1;
-      const newMaxIndex = Math.max(0, reviews.length - newPerView);
-      setCurrentIndex((prev) => Math.min(prev, newMaxIndex));
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, [reviews.length]);
+    if (!autoPlay || !carouselRef) return;
+    const interval = setInterval(() => {
+      setCurrentIndex((prev) => (prev >= maxIndex ? 0 : prev + 1));
+    }, autoPlayInterval);
+    return () => clearInterval(interval);
+  }, [autoPlay, autoPlayInterval, maxIndex, carouselRef]);
 
   useEffect(() => {
-    if (!autoPlay) return;
-    const interval = setInterval(goToNext, autoPlayInterval);
-    return () => clearInterval(interval);
-  }, [autoPlay, autoPlayInterval, goToNext]);
+    if (carouselRef) {
+      const cardWidth = carouselRef.querySelector('article')?.clientWidth || 0;
+      const gap = 24; // gap-6 = 1.5rem = 24px
+      const scrollAmount = (cardWidth + gap) * currentIndex;
+      carouselRef.scrollTo({ left: scrollAmount, behavior: "smooth" });
+    }
+  }, [currentIndex, carouselRef, reviewsPerView]);
 
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchStart(e.touches[0].clientX);
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (touchStart === null) return;
+    if (touchStart === null || !carouselRef) return;
     const touchEnd = e.changedTouches[0].clientX;
     const diff = touchStart - touchEnd;
     if (Math.abs(diff) > 50) {
@@ -252,7 +265,6 @@ export function ReviewsCarousel({
     ),
   };
 
-  // Simple text fallbacks for inline use
   const sourceLabels = {
     google: "Google",
     yelp: "Yelp",
@@ -301,139 +313,135 @@ export function ReviewsCarousel({
         </motion.div>
 
         <div
-          className="relative"
+          ref={setCarouselRef}
+          className="flex gap-6 overflow-x-auto scroll-snap-x snap-mandatory pb-4 -mx-4 px-4 sm:mx-0 sm:px-0"
+          role="region"
+          aria-label="Customer reviews carousel"
+          aria-roledescription="carousel"
           onTouchStart={handleTouchStart}
           onTouchEnd={handleTouchEnd}
         >
-          <div
-            className="flex gap-6 overflow-x-hidden justify-end"
-            style={{ transform: `translateX(-${(currentIndex / Math.max(1, reviews.length - reviewsPerView + 0.01)) * 100}%)` }}
-            role="region"
-            aria-label="Customer reviews carousel"
-            aria-roledescription="carousel"
-          >
-            <AnimatePresence mode="wait">
-              {visibleReviews.map((review, index) => (
-                <motion.article
-                  key={review.id}
-                  initial={{ opacity: 0, x: 50 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: -50 }}
-                  transition={{ duration: 0.3 }}
-                  className={cn(
-                    "flex-shrink-0 w-full sm:max-w-[calc(50%-1.5rem)] lg:max-w-[calc(33.333%-2rem)]",
-                    reviewsPerView === 1 && "sm:max-w-full",
-                    reviewsPerView === 2 && "lg:max-w-[calc(50%-1.5rem)]"
-                  )}
-                  role="group"
-                  aria-roledescription="slide"
-                  aria-label={`Review ${currentIndex + index + 1} of ${reviews.length}`}
-                >
-                  <div className="h-full bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div className="flex items-center gap-2 mb-4">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={cn(
-                            "w-5 h-5",
-                            i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-neutral-300"
-                          )}
-                          aria-hidden="true"
-                        />
-                      ))}
-                      <span className="ml-2 text-sm font-medium text-neutral-600 flex items-center gap-1">
-                        {sourceLabels[review.source]}
-                      </span>
-                    </div>
-                    <Quote className="w-10 h-10 text-primary-100 mb-4" aria-hidden="true" />
-                    <blockquote className="text-neutral-700 leading-relaxed mb-6">
-                      "{review.content}"
-                    </blockquote>
-                    <div className="flex items-center gap-3 pt-4 border-t border-neutral-100">
-                      <Avatar name={review.authorName} size="md" src={review.authorAvatar} />
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <cite className="font-semibold text-neutral-900 not-italic">{review.authorName}</cite>
-                          {review.verified && (
-                            <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Verified</span>
-                          )}
-                        </div>
-                        <div className="flex items-center gap-2 text-sm text-neutral-500">
-                          <span>{review.date}</span>
-                          {review.serviceType && (
-                            <>
-                              <span className="text-neutral-300">•</span>
-                              <span>{review.serviceType}</span>
-                            </>
-                          )}
-                          {review.technicianName && (
-                            <>
-                              <span className="text-neutral-300">•</span>
-                              <span>Tech: {review.technicianName}</span>
-                            </>
-                          )}
-                        </div>
+          <AnimatePresence mode="wait">
+            {visibleReviews.map((review, index) => (
+              <motion.article
+                key={review.id}
+                initial={{ opacity: 0, x: 50 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -50 }}
+                transition={{ duration: 0.3 }}
+                className={cn(
+                  "flex-shrink-0 scroll-snap-start w-full sm:max-w-[calc(50%-1.5rem)] lg:max-w-[calc(33.333%-2rem)]",
+                  reviewsPerView === 1 && "sm:max-w-full",
+                  reviewsPerView === 2 && "lg:max-w-[calc(50%-1.5rem)]"
+                )}
+                role="group"
+                aria-roledescription="slide"
+                aria-label={`Review ${currentIndex + index + 1} of ${reviews.length}`}
+              >
+                <div className="h-full bg-white rounded-2xl border border-neutral-200 p-6 shadow-sm hover:shadow-md transition-shadow duration-300">
+                  <div className="flex items-center gap-2 mb-4">
+                    {[...Array(5)].map((_, i) => (
+                      <Star
+                        key={i}
+                        className={cn(
+                          "w-5 h-5",
+                          i < review.rating ? "fill-yellow-400 text-yellow-400" : "text-neutral-300"
+                        )}
+                        aria-hidden="true"
+                      />
+                    ))}
+                    <span className="ml-2 text-sm font-medium text-neutral-600 flex items-center gap-1">
+                      {sourceLabels[review.source]}
+                    </span>
+                  </div>
+                  <Quote className="w-10 h-10 text-primary-100 mb-4" aria-hidden="true" />
+                  <blockquote className="text-neutral-700 leading-relaxed mb-6">
+                    "{review.content}"
+                  </blockquote>
+                  <div className="flex items-center gap-3 pt-4 border-t border-neutral-100">
+                    <Avatar name={review.authorName} size="md" src={review.authorAvatar} />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <cite className="font-semibold text-neutral-900 not-italic">{review.authorName}</cite>
+                        {review.verified && (
+                          <span className="text-xs px-2 py-0.5 bg-green-100 text-green-700 rounded-full">Verified</span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-sm text-neutral-500">
+                        <span>{review.date}</span>
+                        {review.serviceType && (
+                          <>
+                            <span className="text-neutral-300">•</span>
+                            <span>{review.serviceType}</span>
+                          </>
+                        )}
+                        {review.technicianName && (
+                          <>
+                            <span className="text-neutral-300">•</span>
+                            <span>Tech: {review.technicianName}</span>
+                          </>
+                        )}
                       </div>
                     </div>
                   </div>
-                </motion.article>
-              ))}
-            </AnimatePresence>
-          </div>
-
-          {showArrows && reviews.length > reviewsPerView && (
-            <>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={goToPrev}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 md:-translate-x-4 w-12 h-12 md:w-14 md:h-14 rounded-full bg-white border border-neutral-200 shadow-lg flex items-center justify-center text-neutral-600 hover:text-primary-600 hover:border-primary-200 transition-colors z-10"
-                aria-label="Previous review"
-                aria-disabled={currentIndex === 0}
-              >
-                <ChevronLeft className="w-6 h-6" aria-hidden="true" />
-              </motion.button>
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={goToNext}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 md:translate-x-4 w-12 h-12 md:w-14 md:h-14 rounded-full bg-white border border-neutral-200 shadow-lg flex items-center justify-center text-neutral-600 hover:text-primary-600 hover:border-primary-200 transition-colors z-10"
-                aria-label="Next review"
-                aria-disabled={currentIndex >= maxIndex}
-              >
-                <ChevronRight className="w-6 h-6" aria-hidden="true" />
-              </motion.button>
-            </>
-          )}
-
-          {showDots && reviews.length > reviewsPerView && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="flex justify-center gap-2 mt-8"
-              role="tablist"
-              aria-label="Review navigation"
-            >
-              {[...Array(maxIndex + 1)].map((_, i) => (
-                <motion.button
-                  key={i}
-                  whileHover={{ scale: 1.2 }}
-                  whileTap={{ scale: 0.9 }}
-                  onClick={() => goToSlide(i)}
-                  className={cn(
-                    "w-2.5 h-2.5 rounded-full transition-all duration-200",
-                    i === currentIndex
-                      ? "bg-primary-600 w-8"
-                      : "bg-neutral-300 hover:bg-neutral-400"
-                  )}
-                  role="tab"
-                  aria-selected={i === currentIndex}
-                  aria-label={`Go to review group ${i + 1}`}
-                />
-              ))}
-            </motion.div>
-          )}
+                </div>
+              </motion.article>
+            ))}
+          </AnimatePresence>
         </div>
+
+        {showArrows && reviews.length > reviewsPerView && (
+          <>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={goToPrev}
+              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 md:-translate-x-4 w-12 h-12 md:w-14 md:h-14 rounded-full bg-white border border-neutral-200 shadow-lg flex items-center justify-center text-neutral-600 hover:text-primary-600 hover:border-primary-200 transition-colors z-10 hidden sm:block"
+              aria-label="Previous review"
+              aria-disabled={currentIndex === 0}
+            >
+              <ChevronLeft className="w-6 h-6" aria-hidden="true" />
+            </motion.button>
+            <motion.button
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.9 }}
+              onClick={goToNext}
+              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 md:translate-x-4 w-12 h-12 md:w-14 md:h-14 rounded-full bg-white border border-neutral-200 shadow-lg flex items-center justify-center text-neutral-600 hover:text-primary-600 hover:border-primary-200 transition-colors z-10 hidden sm:block"
+              aria-label="Next review"
+              aria-disabled={currentIndex >= maxIndex}
+            >
+              <ChevronRight className="w-6 h-6" aria-hidden="true" />
+            </motion.button>
+          </>
+        )}
+
+        {showDots && reviews.length > reviewsPerView && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="flex justify-center gap-2 mt-8"
+            role="tablist"
+            aria-label="Review navigation"
+          >
+            {[...Array(maxIndex + 1)].map((_, i) => (
+              <motion.button
+                key={i}
+                whileHover={{ scale: 1.2 }}
+                whileTap={{ scale: 0.9 }}
+                onClick={() => goToSlide(i)}
+                className={cn(
+                  "w-2.5 h-2.5 rounded-full transition-all duration-200",
+                  i === currentIndex
+                    ? "bg-primary-600 w-8"
+                    : "bg-neutral-300 hover:bg-neutral-400"
+                )}
+                role="tab"
+                aria-selected={i === currentIndex}
+                aria-label={`Go to review group ${i + 1}`}
+              />
+            ))}
+          </motion.div>
+        )}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}

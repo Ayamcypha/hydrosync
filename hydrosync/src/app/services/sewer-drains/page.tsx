@@ -8,6 +8,7 @@ export default function SewerDrainsPage() {
         title="Sewer & Drain Services"
         description="Professional drain cleaning, sewer repair, and hydrojetting from HydroSync. Advanced camera inspection technology, trenchless repair options, and 24/7 emergency response for clogged drains and sewer backups."
         category={{ title: "Services", slug: "services" }}
+        backgroundImage="/pics/sewer-drains.jpg"
         features={[
           "State-of-the-art camera inspection",
           "High-pressure hydrojetting (4000 PSI)",
