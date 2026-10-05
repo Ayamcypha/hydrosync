@@ -3,7 +3,7 @@
 import { useState, useCallback, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Container } from "@/components/ui/Layout";
-import { Star, Quote, ChevronLeft, ChevronRight } from "lucide-react";
+import { Star, Quote, ChevronRight } from "lucide-react";
 import { Avatar } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
@@ -147,8 +147,6 @@ interface ReviewsCarouselProps {
   reviews?: Review[];
   autoPlay?: boolean;
   autoPlayInterval?: number;
-  showDots?: boolean;
-  showArrows?: boolean;
   className?: string;
 }
 
@@ -160,8 +158,6 @@ export function ReviewsCarousel({
   reviews = mockReviews,
   autoPlay = true,
   autoPlayInterval = 5000,
-  showDots = true,
-  showArrows = true,
   className,
 }: ReviewsCarouselProps) {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -389,59 +385,6 @@ export function ReviewsCarousel({
             ))}
           </AnimatePresence>
         </div>
-
-        {showArrows && reviews.length > reviewsPerView && (
-          <>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={goToPrev}
-              className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-3 md:-translate-x-4 w-12 h-12 md:w-14 md:h-14 rounded-full bg-white border border-neutral-200 shadow-lg flex items-center justify-center text-neutral-600 hover:text-primary-600 hover:border-primary-200 transition-colors z-10 hidden sm:block"
-              aria-label="Previous review"
-              aria-disabled={currentIndex === 0}
-            >
-              <ChevronLeft className="w-6 h-6" aria-hidden="true" />
-            </motion.button>
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              whileTap={{ scale: 0.9 }}
-              onClick={goToNext}
-              className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-3 md:translate-x-4 w-12 h-12 md:w-14 md:h-14 rounded-full bg-white border border-neutral-200 shadow-lg flex items-center justify-center text-neutral-600 hover:text-primary-600 hover:border-primary-200 transition-colors z-10 hidden sm:block"
-              aria-label="Next review"
-              aria-disabled={currentIndex >= maxIndex}
-            >
-              <ChevronRight className="w-6 h-6" aria-hidden="true" />
-            </motion.button>
-          </>
-        )}
-
-        {showDots && reviews.length > reviewsPerView && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="flex justify-center gap-2 mt-8"
-            role="tablist"
-            aria-label="Review navigation"
-          >
-            {[...Array(maxIndex + 1)].map((_, i) => (
-              <motion.button
-                key={i}
-                whileHover={{ scale: 1.2 }}
-                whileTap={{ scale: 0.9 }}
-                onClick={() => goToSlide(i)}
-                className={cn(
-                  "w-2.5 h-2.5 rounded-full transition-all duration-200",
-                  i === currentIndex
-                    ? "bg-primary-600 w-8"
-                    : "bg-neutral-300 hover:bg-neutral-400"
-                )}
-                role="tab"
-                aria-selected={i === currentIndex}
-                aria-label={`Go to review group ${i + 1}`}
-              />
-            ))}
-          </motion.div>
-        )}
 
         <motion.div
           initial={{ opacity: 0, y: 20 }}

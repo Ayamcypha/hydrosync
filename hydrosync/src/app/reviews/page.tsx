@@ -29,9 +29,6 @@ export default function ReviewsPage() {
         subtitle=""
         rating={4.8}
         reviewCount={4261}
-        autoPlay={false}
-        showDots={true}
-        showArrows={true}
       />
 
       <StatsSection />
